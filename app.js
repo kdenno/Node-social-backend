@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const feedRoutes = require("./routes/feed");
 
@@ -8,6 +9,7 @@ const app = express();
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 const MONGODB_URI =
   "mongodb+srv://node-complete:B6ANyfkEveghapdK@cluster0-k1a0c.mongodb.net/messages";
@@ -23,6 +25,14 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
+// create middle ware for general error handling
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode;
+  const message = error.message; // message exists by default on error object
+  res.status(statusCode).json({
+    message: message
+  });
+});
 
 mongoose
   .connect(MONGODB_URI)
