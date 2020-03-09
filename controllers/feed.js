@@ -121,3 +121,22 @@ const clearImage = filePath => {
   filePath = path.join(__dirname, "..", filePath); // this file is in the controllers folder, jump out to the root folder with '..'
   fs.unlink(filePath, err => console.log(err));
 };
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+  // find product
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        const error = new Error("Post not found");
+        error.statusCode = 500;
+        throw error;
+      }
+      // check if user owns the post
+      clearImage(post.imageUrl);
+      return Post.findByIdAndRemove(postId);
+    })
+    .then(result => {
+      res.status(201).json({ message: "Post deleted" });
+    })
+    .catch(err => next(err));
+};
