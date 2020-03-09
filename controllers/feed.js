@@ -34,6 +34,11 @@ exports.getPost = (req, res, next) => {
 
 exports.createPost = (req, res, next) => {
   const errors = validationResult(req);
+  if (!req.file) {
+    const error = new Error("No image uploaded");
+    error.statusCode = 422;
+    throw new error();
+  }
   if (!errors.isEmpty()) {
     const error = new Error("Validation failed, entered data is incorrect");
     error.statusCode = 422;
@@ -41,11 +46,12 @@ exports.createPost = (req, res, next) => {
   }
   const title = req.body.title;
   const content = req.body.content;
+  const imageUrl = req.file.path;
   // Create post in db
   const post = new Post({
     title: title,
     content: content,
-    imageUrl: "images/duck.jpg",
+    imageUrl: imageUrl,
     creator: { name: "Deno" }
   });
   post
