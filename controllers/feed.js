@@ -1,20 +1,35 @@
 const { validationResult } = require("express-validator/check");
 const Post = require("../models/post");
 exports.getPosts = (req, res, next) => {
-  res.status(200).json({
-    posts: [
-      {
-        _id: "1",
-        title: "First Post",
-        content: "This is the first post!",
-        imageUrl: "images/duck.jpg",
-        creator: {
-          name: "Deno"
-        },
-        createdAt: new Date()
+  Post.find()
+    .then(posts => {
+      res.status().json({ message: "Success", posts: posts });
+    })
+    .catch(err => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+        next(err);
       }
-    ]
-  });
+    });
+};
+
+exports.getPost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById()
+    .then(post => {
+      if (!post) {
+        const error = new Error("Post not found");
+        error.statusCode = 500;
+        throw error; // this will work though we are in a promise because throwing an error in the then block automatically shifts it to the catch block so next() will grab it automatically
+      }
+      res.status(200).json({ message: "Success", post: post });
+    })
+    .catch(err => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+        next(err);
+      }
+    });
 };
 
 exports.createPost = (req, res, next) => {
