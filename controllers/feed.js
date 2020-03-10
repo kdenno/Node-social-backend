@@ -112,6 +112,12 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 500;
         throw error;
       }
+      // check if user is authorized to update this
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("An Authorized");
+        error.statusCode = 403;
+        throw error;
+      }
       if (imageUrl !== post.imageUrl) {
         // image changed, delete old image
         clearImage(post.imageUrl);
@@ -143,6 +149,12 @@ exports.deletePost = (req, res, next) => {
         throw error;
       }
       // check if user owns the post
+      // check if user is authorized to update this
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("An Authorized");
+        error.statusCode = 403;
+        throw error;
+      }
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
     })
