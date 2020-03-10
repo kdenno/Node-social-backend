@@ -29,5 +29,6 @@ routes.put(
   ],
   authController.createUser
 );
+routes.post("/login", authController.login);
 
 module.exports = router;
