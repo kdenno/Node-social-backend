@@ -52,8 +52,10 @@ app.use("/feed", feedRoutes);
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode;
   const message = error.message; // message exists by default on error object
+  const data = error.data;
   res.status(statusCode).json({
-    message: message
+    message: message,
+    data: data
   });
 });
 
