@@ -102,14 +102,14 @@ exports.updatePost = async (req, res, next) => {
   }
   // get the post
   try {
-    const post = Post.findById(postId);
+    const post = Post.findById(postId).populate("creator");
     if (!post) {
       const error = new Error("Post not found");
       error.statusCode = 500;
       throw error;
     }
     // check if user is authorized to update this
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error("An Authorized");
       error.statusCode = 403;
       throw error;
@@ -122,6 +122,8 @@ exports.updatePost = async (req, res, next) => {
     post.content = updatedContent;
     post.imageUrl = imageUrl;
     const result = await post.save();
+    // trigger update
+    io.emit("update", { action: "update", post: result });
     res.status(200).json({ message: "Updated successfuly", post: result });
   } catch (err) {
     next(err);
