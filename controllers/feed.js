@@ -3,6 +3,7 @@ const Post = require("../models/post");
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/user");
+const io = require("../socket");
 exports.getPosts = async (req, res, next) => {
   try {
     const posts = await Post.find();
@@ -61,6 +62,11 @@ exports.createPost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.push(post);
     await user.save();
+    // trigger update to all connected clients
+    io.getIo().emit("posts", {
+      action: "create",
+      post: { ...post.doc, creator: { _id: req.userId, name: user.name } }
+    });
     res.status(201).json({
       message: "Post created successfully!",
       post: post,
