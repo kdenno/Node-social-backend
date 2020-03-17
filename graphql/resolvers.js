@@ -1,7 +1,7 @@
 const userModel = require('../models/user');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
-
+const jwt = require('jsonwebtoken');
 
 
 module.exports = {
@@ -35,6 +35,28 @@ errors.push({message: 'Password too short'});
   const createdUser = await newUser.save();
   // return userObj but id should be a string so we need to override the original id
   return {...createdUser._doc, _id:createdUser._id.toString()}
+
+  },
+
+  login: async function({email, password}){
+    const user = await userModel.findOne({email: email});
+    if(!user) {
+      const error = new Error('Wrong email');
+      error.code = 401;
+      throw error;
+
+    }
+    const isMatching = await bcrypt.compare(password, user.password);
+    if(!isMatching){
+      const error = new Error('Incorrect Password');
+      error.code = 401;
+      throw error;
+    }
+    const token = jwt.sign({
+      userId: user._id.toString(),
+      email: user.email,
+    }, 'somesupersecret', {expiresIn: '1h'});
+    return {token: token, userId: user._id.toString()}
 
   }
 }
