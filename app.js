@@ -57,7 +57,18 @@ app.use(
   "/graphql",
   graphQlHttp({
     schema: graphQlschema,
-    rootValue: graphQlresolver
+    rootValue: graphQlresolver,
+    graphiql: true,
+    formatError(err) {
+      // any error thrown using throw error will be trapped under originalError
+      if (!err.originalError) {
+        return err;
+      }
+      const data = err.originalError.data;
+      const message = err.message || "An Error Occured";
+      const code = err.originalError.code || 500;
+      return { message: message, code: code, data: data };
+    }
   })
 );
 // create middle ware for general error handling
@@ -76,7 +87,7 @@ mongoose
   .then(result => {
     app.listen(8080);
     // const server = app.listen(8080);
-   /* const io = require("./socket").init(server);
+    /* const io = require("./socket").init(server);
     io.on("connection", socket => {
       console.log("client connected");
     });*/

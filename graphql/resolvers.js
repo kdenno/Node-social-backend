@@ -15,6 +15,8 @@ errors.push({message: 'Password too short'});
     }
     if(errors.length > 0) {
       const error = new Error('Input Invalid');
+      error.code = 422;
+   error.data = errors;
       throw error;
 
     }
