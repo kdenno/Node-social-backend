@@ -3,9 +3,12 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const multer = require("multer");
+const graphQlHttp = require("express-graphql");
+const graphQlschema = require("./graphql/schemas");
+const graphQlresolver = require("./graphql/resolvers");
 
-const feedRoutes = require("./routes/feed");
-const authRoutes = require("./routes/auth");
+// const feedRoutes = require("./routes/feed");
+// const authRoutes = require("./routes/auth");
 
 const app = express();
 const fileStorage = multer.diskStorage({
@@ -48,8 +51,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/feed", feedRoutes);
-app.use("/auth", authRoutes);
+// app.use("/feed", feedRoutes);
+// app.use("/auth", authRoutes);
+app.use(
+  "/graphql",
+  graphQlHttp({
+    schema: graphQlschema,
+    rootValue: graphQlresolver
+  })
+);
 // create middle ware for general error handling
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode;
@@ -64,10 +74,11 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then(result => {
-    const server = app.listen(8080);
-    const io = require("./socket").init(server);
+    app.listen(8080);
+    // const server = app.listen(8080);
+   /* const io = require("./socket").init(server);
     io.on("connection", socket => {
       console.log("client connected");
-    });
+    });*/
   })
   .catch(err => console.log(err));

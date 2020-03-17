@@ -6,7 +6,9 @@ const User = require("../models/user");
 const io = require("../socket");
 exports.getPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find()
+      .populate("creator")
+      .sort({ createdAt: -1 });
     res.status().json({ message: "Success", posts: posts });
   } catch (err) {
     if (!err.statusCode) {
