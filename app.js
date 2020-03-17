@@ -48,6 +48,11 @@ app.use((req, res, next) => {
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  // solve the OPTIONS request rejection by express-graphql
+  if (req.method === "OPTIONS") {
+    // return success so that next() is not executed to make it to the graphql middleware
+    return res.sendStatus(200);
+  }
   next();
 });
 
