@@ -6,7 +6,7 @@ const Post = require('../models/post');
 
 
 module.exports = {
-  createUser: function async({userInput}, req) {
+  createUser: async function({userInput}, req) {
     const errors = [];
     if(!validator.isEmail(userInput.email)) {
       errors.push({message: 'Invalid Email'});
@@ -86,8 +86,9 @@ errors.push({message: 'Password too short'});
     });
     const createdPost = await newPost.save();
     user.posts.push(createdPost);
+    await user.save();
     return {...createdPost._doc,
-       _id:createdPost._id.toString(),
+       _id: createdPost._id.toString(),
         createdAt: createdPost.createdAt.toISOString(),
          updatedAt: createdPost.updatedAt.toISOString()
         }
