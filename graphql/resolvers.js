@@ -2,6 +2,7 @@ const userModel = require('../models/user');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const Post = require('../models/post');
 
 
 module.exports = {
@@ -55,8 +56,41 @@ errors.push({message: 'Password too short'});
     const token = jwt.sign({
       userId: user._id.toString(),
       email: user.email,
-    }, 'somesupersecret', {expiresIn: '1h'});
+    }, 'supersupersecretkey', {expiresIn: '1h'});
     return {token: token, userId: user._id.toString()}
+
+  },
+  createPost: async function({PostInput}, req){
+    if(!req.isAuth) {
+      const error = new Error('Not Authenticated');
+      error.code = 401;
+      throw error;
+    }
+    const title = PostInput.title;
+    const imageUrl = PostInput.imageUrl;
+    const content = PostInput.content;
+    // Do some validation
+
+    // find user
+    const user = await userModel.findById(req.userId);
+    if(!user){
+     const error = new Error('No user found');
+     error.code = 401;
+     throw error;
+    }
+    const newPost = new Post({
+      title: title,
+      imageUrl: imageUrl,
+      content: content,
+      creator: user
+    });
+    const createdPost = await newPost.save();
+    user.posts.push(createdPost);
+    return {...createdPost._doc,
+       _id:createdPost._id.toString(),
+        createdAt: createdPost.createdAt.toISOString(),
+         updatedAt: createdPost.updatedAt.toISOString()
+        }
 
   }
 }

@@ -6,6 +6,7 @@ const multer = require("multer");
 const graphQlHttp = require("express-graphql");
 const graphQlschema = require("./graphql/schemas");
 const graphQlresolver = require("./graphql/resolvers");
+const graphqlAuth = require("./middleware/graphQlAuth");
 
 // const feedRoutes = require("./routes/feed");
 // const authRoutes = require("./routes/auth");
@@ -58,6 +59,7 @@ app.use((req, res, next) => {
 
 // app.use("/feed", feedRoutes);
 // app.use("/auth", authRoutes);
+app.use(graphqlAuth);
 app.use(
   "/graphql",
   graphQlHttp({

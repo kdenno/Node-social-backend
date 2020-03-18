@@ -26,9 +26,16 @@ input userInputData {
     password: String!
 
 }
+input PostInputData {
+    title: String!
+    imageUrl: String!
+    content: String!
+    
+}
 
 type RootMutation {
     createUser(userInput: userInputData): User!
+    createPost(postInput: PostInputData):Post!
 
 }
 type SuccessfulLoginData {
