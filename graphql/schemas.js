@@ -40,6 +40,7 @@ input PostInputData {
 type RootMutation {
     createUser(userInput: userInputData): User!
     createPost(postInput: PostInputData):Post!
+    updatePost(id: ID!, postInput: PostInputData):Post!
 
 }
 type SuccessfulLoginData {
@@ -48,7 +49,7 @@ type SuccessfulLoginData {
 }
 type RootQuery {
     login(email: String!, password: String!): SuccessfulLoginData!
-    getPost(postId: String!): Post!
+    getPost(Id: ID!): Post!
     getPosts(page: Int):PostData!
 }
 

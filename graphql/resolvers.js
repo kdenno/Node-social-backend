@@ -96,20 +96,44 @@ module.exports = {
       updatedAt: createdPost.updatedAt.toISOString()
     };
   },
-  getPost: async function({ postId }, req) {
+  updatePost({id, postInput}, req) {
     if (!req.isAuth) {
       const error = new Error("Not Authenticated");
       error.code = 401;
       throw error;
     }
-    const post = await Post.findById(postId);
-    if (!post) {
-      const error = new Error("Post not found");
+    const post = await Post.findById(id).populate("creator")
+    if(!post) {
+throw new Error('No Post found');
+    }
+    if(req.userId.toString() !== post.creator._id.toString()) {
+      throw new Error("Not Authorized");
+    }
+    post.title = postInput.title;
+    post.content = postInput.content;
+    if(postInput.imageUrl !== 'undefined') {
+      post.imageUrl = postInput.imageUrl;
+    }
+    const updatedPost = await post.save();
+    return {...updatedPost._doc, _id: updatedPost._id.toString(), createdAt: updatedPost.createdAt.toISOString(), updatedAt: updatedPost.updatedAt.toISOString()}
+
+
+
+  },
+  getPost: async function({ Id }, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not Authenticated");
       error.code = 401;
       throw error;
     }
+    const post = await Post.findById(Id).populate("creator");
+    if (!post) {
+      const error = new Error("Post not found");
+      error.code = 404;
+      throw error;
+    }
     return {
-      ...post,
+      ...post._doc,
       _id: post._id.toString(),
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString()
