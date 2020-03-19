@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const Post = require("../models/post");
+const { clearImage } = require("../util/file");
 
 module.exports = {
   createUser: async function({ userInput }, req) {
@@ -96,29 +97,55 @@ module.exports = {
       updatedAt: createdPost.updatedAt.toISOString()
     };
   },
-  updatePost({id, postInput}, req) {
+  updatePost: async function({ id, postInput }, req) {
     if (!req.isAuth) {
       const error = new Error("Not Authenticated");
       error.code = 401;
       throw error;
     }
-    const post = await Post.findById(id).populate("creator")
-    if(!post) {
-throw new Error('No Post found');
+    const post = await Post.findById(id).populate("creator");
+    if (!post) {
+      throw new Error("No Post found");
     }
-    if(req.userId.toString() !== post.creator._id.toString()) {
+    if (req.userId.toString() !== post.creator._id.toString()) {
       throw new Error("Not Authorized");
     }
     post.title = postInput.title;
     post.content = postInput.content;
-    if(postInput.imageUrl !== 'undefined') {
+    if (postInput.imageUrl !== "undefined") {
       post.imageUrl = postInput.imageUrl;
     }
     const updatedPost = await post.save();
-    return {...updatedPost._doc, _id: updatedPost._id.toString(), createdAt: updatedPost.createdAt.toISOString(), updatedAt: updatedPost.updatedAt.toISOString()}
-
-
-
+    return {
+      ...updatedPost._doc,
+      _id: updatedPost._id.toString(),
+      createdAt: updatedPost.createdAt.toISOString(),
+      updatedAt: updatedPost.updatedAt.toISOString()
+    };
+  },
+  deletePost: async function({ id }, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not Authenticated");
+      error.code = 401;
+      throw error;
+    }
+    const post = await Post.findById(id);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    // check is he owns the post
+    if (post.creator.toString() !== req.userId.toString()) {
+      throw new Error("UnAuthorized");
+    }
+    // delete image
+    clearImage(post.imageUrl);
+    // delete post
+    await Post.findByIdAndRemove(id);
+    // remove post from user
+    const user = await User.findById(req.userId);
+    user.posts.pull(id);
+    await user.save();
+    return true;
   },
   getPost: async function({ Id }, req) {
     if (!req.isAuth) {

@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
-const fs = require("fs");
+const {clearImage} = require("./util/file");
 const multer = require("multer");
 const graphQlHttp = require("express-graphql");
 const graphQlschema = require("./graphql/schemas");
@@ -120,7 +120,4 @@ mongoose
   })
   .catch(err => console.log(err));
 
-const clearImage = filePath => {
-  filePath = path.join(__dirname, "..", filePath); // this file is in the controllers folder, jump out to the root folder with '..'
-  fs.unlink(filePath, err => console.log(err));
-};
+

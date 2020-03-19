@@ -41,6 +41,7 @@ type RootMutation {
     createUser(userInput: userInputData): User!
     createPost(postInput: PostInputData):Post!
     updatePost(id: ID!, postInput: PostInputData):Post!
+    deletePost(id: ID!):Boolean
 
 }
 type SuccessfulLoginData {
