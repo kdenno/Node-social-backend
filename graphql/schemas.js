@@ -41,7 +41,8 @@ type RootMutation {
     createUser(userInput: userInputData): User!
     createPost(postInput: PostInputData):Post!
     updatePost(id: ID!, postInput: PostInputData):Post!
-    deletePost(id: ID!):Boolean
+    deletePost(id: ID!):Boolean,
+    updateStatus(status: String!):User!
 
 }
 type SuccessfulLoginData {
@@ -52,6 +53,7 @@ type RootQuery {
     login(email: String!, password: String!): SuccessfulLoginData!
     getPost(Id: ID!): Post!
     getPosts(page: Int):PostData!
+    user:User!
 }
 
 schema {

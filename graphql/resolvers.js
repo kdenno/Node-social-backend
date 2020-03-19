@@ -194,6 +194,31 @@ module.exports = {
       }),
       totalNumber: totalPosts
     };
+  },
+  user: async function(req) {
+    if (!req.isAuth) {
+      const error = new Error("Not Authenticated");
+      error.code = 401;
+      throw error;
+    }
+    // get user
+    const user = User.findById(req.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return { ...user._doc, _id: user._id.toString() };
+  },
+  updateStatus: async function({ status }, req) {
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
+    const user = await User.findById(req.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    user.status = status;
+    await user.save();
+    return { ...user._doc, _id: user._id.toString() };
   }
 };
 
