@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 const graphQlHttp = require("express-graphql");
 const graphQlschema = require("./graphql/schemas");
@@ -78,6 +79,24 @@ app.use(
     }
   })
 );
+app.put("/post-image", (req, res, next) => {
+  if (!req.isAuth) {
+    throw new Error("Not Authenticated");
+  }
+  // since we are still running multer, check if we have a file on the request
+  if (!req.file) {
+    // dont trigger error, maybe user is editing post
+    return res.status(200).json({ message: "No file provided" });
+  }
+  // delete older image
+  if (req.body.oldPath) {
+    clearImage(req.body.oldPath);
+  }
+  // return file stored and path where multer stored the image
+  return res
+    .status(201)
+    .json({ message: "File stored", filePath: req.file.path });
+});
 // create middle ware for general error handling
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode;
@@ -100,3 +119,8 @@ mongoose
     });*/
   })
   .catch(err => console.log(err));
+
+const clearImage = filePath => {
+  filePath = path.join(__dirname, "..", filePath); // this file is in the controllers folder, jump out to the root folder with '..'
+  fs.unlink(filePath, err => console.log(err));
+};
