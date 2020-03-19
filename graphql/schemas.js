@@ -11,6 +11,10 @@ type Post {
     createdAt: String!
 
 }
+type PostData {
+    posts: [Post!]!
+    totalNumber: Int!
+}
 
 type User {
     _id: ID!
@@ -44,6 +48,8 @@ type SuccessfulLoginData {
 }
 type RootQuery {
     login(email: String!, password: String!): SuccessfulLoginData!
+    getPost(postId: String!): Post!
+    getPosts(page: Int):PostData!
 }
 
 schema {
