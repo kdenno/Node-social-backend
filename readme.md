@@ -1,6 +1,6 @@
 # socialnode API
 
-> A GraphQL Backend API for [socialnode](github.com/kdenno/socialnode) application,  that manages users and authentication and file uploads
+> A GraphQL Backend API for [socialnode](https://github.com/kdenno/socialnode) application,  that manages users and authentication and file uploads
 
 ## Install dependencies
 ```
